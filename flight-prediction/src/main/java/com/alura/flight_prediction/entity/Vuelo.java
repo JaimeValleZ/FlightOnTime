@@ -23,7 +23,8 @@ public class Vuelo {
     private String origen;
     private String destino;
     private LocalDateTime fechaPartida;
+    private Integer distancia;
     private String prevision;
-    private Float probabilidad;
+    private Double probabilidad;
 
 }
