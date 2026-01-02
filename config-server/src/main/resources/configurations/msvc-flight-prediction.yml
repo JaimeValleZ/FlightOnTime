@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8091
 
 spring:
   application:
@@ -8,16 +8,16 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/flight_prediction
     username: root
-    password: 80032671j
+    password: MySQL/2125
   jpa:
     hibernate:
       ddl-auto: update
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
-
 eureka:
   instance:
     hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
