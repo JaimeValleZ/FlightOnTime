@@ -3,4 +3,12 @@ spring:
     name: msvc-flight-prediction
   config:
     import: optional:configserver:http://localhost:8888
+<<<<<<< HEAD
 
+=======
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
+>>>>>>> 441e24b27e6a648d7dc8a5c8a32148667eb13c58
