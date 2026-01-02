@@ -15,7 +15,5 @@ public record DatosConsultaVuelo(
     @NotNull @Future LocalDateTime fechaPartida,
     @NotNull @Positive Integer distancia
 ) {
-    /*public DatosConsultaVuelo(Vuelo vuelo) {
-        this(vuelo.getAerolinea(), vuelo.getDestino(), vuelo.getOrigen(), vuelo.getFechaPartida(), vuelo.getDistancia());
-    }*/
+
 }
