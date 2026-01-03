@@ -21,6 +21,7 @@ public class SecurityConfigurations {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/login", "/usuarios/register").permitAll()
+                        .pathMatchers("/prediccion/test").permitAll()
                         // Cualquier otra cosa requiere el token generado a traves del login
                         .anyExchange().authenticated()
                 )

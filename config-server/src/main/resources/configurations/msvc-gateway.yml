@@ -10,12 +10,19 @@ spring:
     name: msvc-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true #Configurar que habilita el gateway para redireccionar los otros microservicios
       routes:
-        - id: vuelos
+
+        - id: prediccion
           uri: http://localhost:8090
           predicates:
             - Path=/prediccion/**
+
+        - id: api-routes
+          uri: http://localhost:8090
+          predicates:
             - Path=/api/**
+
+        - id: auth
+          uri: http://localhost:8090
+          predicates:
+            - Path=/login/**,/usuarios/**

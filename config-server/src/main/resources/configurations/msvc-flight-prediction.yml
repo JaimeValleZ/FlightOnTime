@@ -1,5 +1,5 @@
 server:
-  port: 8091
+  port: 8090
 
 spring:
   application:
@@ -8,7 +8,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/flight_prediction
     username: root
-    password: MySQL/2125
+    password: #tu contraseña de la BD
   jpa:
     hibernate:
       ddl-auto: update
