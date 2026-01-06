@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: FlightOnTime API
+  version: "1.0.0"
+  description: API para predecir retrasos de vuelos
+servers:
+  - url: http://localhost:8080/api/v1
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    FlightRequest:
+      type: object
+      required: [origen, destino, fechaPartida, distanciaKm]
+      properties:
+        origen:
+          type: string
+          description: Código IATA-3 del aeropuerto de origen
+          pattern: "^[A-Z]{3}$"
+          example: "SCL"
+        destino:
+          type: string
+          description: Código IATA-3 del aeropuerto de destino
+          pattern: "^[A-Z]{3}$"
+          example: "LIM"
+        fechaPartida:
+          type: string
+          format: date-time
+          description: Fecha y hora de partida en formato ISO 8601
+          example: "2026-01-10T14:00:00Z"
+        distanciaKm:
+          type: integer
+          minimum: 1
+          description: Distancia aproximada en kilómetros
+          example: 2450
+    FlightResponse:
+      type: object
+      properties:
+        prevision:
+          type: string
+          description: Estado previsto del vuelo
+          example: "Retrasado"
+        probabilidad:
+          type: number
+          format: float
+          description: Probabilidad de retraso (0 a 1)
+          example: 0.78
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Campo 'origen' inválido"
+        details:
+          type: array
+          items:
+            type: string
+paths:
+  /predict:
+    post:
+      tags: [Flight Prediction]
+      summary: Predice retraso de vuelo
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightRequest'
+            examples:
+              valid:
+                summary: Ejemplo válido
+                value: { origen: "SCL", destino: "LIM", fechaPartida: "2026-01-10T14:00:00Z", distanciaKm: 2450 }
+              invalid:
+                summary: Ejemplo inválido
+                value: { origen: "Santiago", destino: "Lima" }
+      responses:
+        '200':
+          description: Predicción exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightResponse'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Credenciales inválidas
+        '429':
+          description: Límite de peticiones excedido
+        '500':
+          description: Error interno del servidor
+  /actuator/health:
+    get:
+      tags: [System]
+      summary: Estado del sistema
+      responses:
+        '200':
+          description: Servicio operativo
