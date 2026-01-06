@@ -72,13 +72,15 @@ Funcionalidades actuales
 •	Validación de entradas con DTOs
 •	Seguridad básica en el Gateway
 •	Arquitectura distribuida con microservicios
-🚀 Funcionalidades opcionales (en desarrollo)
+
+Funcionalidades opcionales (en desarrollo)
 •	GET /stats → estadísticas agregadas de vuelos
 •	Persistencia en base de datos (H2/PostgreSQL)
 •	Dashboard visual (Streamlit/HTML)
 •	Integración con API externa de clima
 •	Batch prediction (CSV)
 •	Contenerización con Docker Compose
+
 Equipo
 •	Data Science → Modelo predictivo en Python (Pandas, scikit-learn)
 •	Back-End → API REST en Java (Spring Boot, Gateway, Eureka, Config Server)
