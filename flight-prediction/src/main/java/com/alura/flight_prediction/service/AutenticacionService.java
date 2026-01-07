@@ -1,4 +1,4 @@
-package com.alura.flight_prediction.entity;
+package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;

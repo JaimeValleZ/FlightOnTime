@@ -1,9 +1,9 @@
 package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.client.AirLabsClient;
-import com.alura.flight_prediction.dto.AirLabsRouteDTO;
-import com.alura.flight_prediction.dto.AirLabsRoutesResponseDTO;
-import com.alura.flight_prediction.dto.FlightRouteDTO;
+import com.alura.flight_prediction.dto.route.AirLabsRouteDTO;
+import com.alura.flight_prediction.dto.route.AirLabsRoutesResponseDTO;
+import com.alura.flight_prediction.dto.route.FlightRouteDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

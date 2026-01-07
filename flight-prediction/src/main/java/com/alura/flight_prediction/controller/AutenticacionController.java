@@ -1,7 +1,7 @@
 package com.alura.flight_prediction.controller;
 
-import com.alura.flight_prediction.dto.DatosAutenticacion;
-import com.alura.flight_prediction.dto.DatosTokenJWT;
+import com.alura.flight_prediction.dto.user.DatosAutenticacion;
+import com.alura.flight_prediction.dto.user.DatosTokenJWT;
 import com.alura.flight_prediction.entity.Usuario;
 import com.alura.flight_prediction.security.TokenService;
 import jakarta.validation.Valid;

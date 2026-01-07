@@ -1,6 +1,6 @@
 package com.alura.flight_prediction.client;
 
-import com.alura.flight_prediction.dto.AirLabsRoutesResponseDTO;
+import com.alura.flight_prediction.dto.route.AirLabsRoutesResponseDTO;
 import com.alura.flight_prediction.dto.airport.AirLabsAirportResponseDTO;
 import com.alura.flight_prediction.dto.flight.AirLabsFlightResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;

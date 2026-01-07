@@ -1,6 +1,6 @@
 package com.alura.flight_prediction.entity;
 
-import com.alura.flight_prediction.dto.DatosRegistroUsuario;
+import com.alura.flight_prediction.dto.user.DatosRegistroUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

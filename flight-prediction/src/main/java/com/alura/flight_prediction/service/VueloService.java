@@ -1,7 +1,6 @@
 package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.client.MlPredictionMicroServicePy;
-import com.alura.flight_prediction.dto.ChurnRequest;
 import com.alura.flight_prediction.dto.DatosConsultaVuelo;
 import com.alura.flight_prediction.dto.DatosRespuestaVuelo;
 import com.alura.flight_prediction.entity.Vuelo;
@@ -19,10 +18,6 @@ public class VueloService {
 
     public VueloService(MlPredictionMicroServicePy mlClient) {
         this.mlClient = mlClient;
-    }
-
-    public String obtenerPrediccion(ChurnRequest request) {
-        return mlClient.predictChurn(request);
     }
 
     public DatosRespuestaVuelo obtenerPrediccion2(DatosConsultaVuelo request) {

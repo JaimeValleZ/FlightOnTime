@@ -1,4 +1,4 @@
-package com.alura.flight_prediction.dto;
+package com.alura.flight_prediction.dto.route;
 
 //DTO temporal para exponer rutas
 public record FlightRouteDTO(
