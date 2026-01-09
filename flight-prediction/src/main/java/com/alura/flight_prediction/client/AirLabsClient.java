@@ -26,7 +26,7 @@ public interface AirLabsClient {
             @RequestParam("flight_iata") String flightIata,
             @RequestParam("api_key") String apiKey);
 
-    //Obtener los datos de un vuelo especifico
+    //Obtener los datos de un aeropuerto especifico
     @GetMapping("/airports")
     AirLabsAirportResponseDTO getAirport(
             @RequestParam("iata_code") String airportIata,

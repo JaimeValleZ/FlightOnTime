@@ -1,6 +1,5 @@
 package com.alura.flight_prediction.dto.route;
 
-import java.util.List;
 
 public record AirLabsRouteDTO(
         //Informacion de la aerolinea
@@ -13,10 +12,9 @@ public record AirLabsRouteDTO(
 
         //Codigo IATA del aeropuerto de salida
         String dep_iata,
+        String dep_time,
 
         //Codigo IATA del aeropuerto de llegada
         String arr_iata,
-
-        List<String> days
-) {
+        String arr_time) {
 }

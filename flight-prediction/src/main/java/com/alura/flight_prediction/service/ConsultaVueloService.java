@@ -12,24 +12,21 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class ConsultaVueloService {
 
-    private final FlightDetailService flightDetailService;
-    private final AirportService airportService;
+    private final AirLabsService airLabsService;
 
     public ConsultaVueloService(
-            FlightDetailService flightDetailService,
-            AirportService airportService) {
-        this.flightDetailService = flightDetailService;
-        this.airportService = airportService;
+            AirLabsService airLabsService) {
+        this.airLabsService = airLabsService;
     }
 
     public DatosConsultaVuelo construirConsultaVuelo(String flightIata) {
 
         // 1️⃣ Datos del vuelo
-        FlightDetailDTO vuelo = flightDetailService.getFlightDetail(flightIata);
+        FlightDetailDTO vuelo = airLabsService.getFlightDetail(flightIata);
 
         // 2️⃣ Aeropuertos
-        AirportDTO origen = airportService.getAirportsByCity(vuelo.origenIata()).get(0);
-        AirportDTO destino = airportService.getAirportsByCity(vuelo.destinoIata()).get(0);
+        AirportDTO origen = airLabsService.getAirportsByCity(vuelo.origenIata()).get(0);
+        AirportDTO destino = airLabsService.getAirportsByCity(vuelo.destinoIata()).get(0);
 
         // 3️⃣ Distancia
         int distanciaKm = GeoUtils.calcularDistanciaKm(
