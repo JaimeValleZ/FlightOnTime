@@ -3,50 +3,71 @@ package com.alura.flight_prediction.service;
 import com.alura.flight_prediction.dto.DatosConsultaVuelo;
 import com.alura.flight_prediction.dto.airport.AirportDTO;
 import com.alura.flight_prediction.dto.flight.FlightDetailDTO;
+import com.alura.flight_prediction.dto.weather.WeatherMLDTO;
 import com.alura.flight_prediction.util.GeoUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class ConsultaVueloService {
 
     private final AirLabsService airLabsService;
+    private final WeatherService weatherService;
 
-    public ConsultaVueloService(
-            AirLabsService airLabsService) {
+    public ConsultaVueloService(AirLabsService airLabsService, WeatherService weatherService) {
         this.airLabsService = airLabsService;
+        this.weatherService = weatherService;
     }
 
     public DatosConsultaVuelo construirConsultaVuelo(String flightIata) {
 
-        // 1️⃣ Datos del vuelo
-        FlightDetailDTO vuelo = airLabsService.getFlightDetail(flightIata);
+        FlightDetailDTO vuelo =
+                airLabsService.getFlightDetail(flightIata);
 
-        // 2️⃣ Aeropuertos
-        AirportDTO origen = airLabsService.getAirportsByCity(vuelo.origenIata()).get(0);
-        AirportDTO destino = airLabsService.getAirportsByCity(vuelo.destinoIata()).get(0);
+        if (vuelo == null) {
+            throw new IllegalArgumentException("No se pudo obtener el vuelo");
+        }
 
-        // 3️⃣ Distancia
+        AirportDTO origen =
+                airLabsService.getAirportsByCity(vuelo.origenIata())
+                        .get(0);
+
+        AirportDTO destino =
+                airLabsService.getAirportsByCity(vuelo.destinoIata())
+                        .get(0);
+
         int distanciaKm = GeoUtils.calcularDistanciaKm(
                 origen.lat(), origen.lng(),
                 destino.lat(), destino.lng()
         );
 
-        // 4️⃣ Fecha de salida
         LocalDateTime fechaPartida = LocalDateTime.parse(
                 vuelo.horaSalida(),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
         );
 
-        // 5️⃣ DTO final para ML
+        WeatherMLDTO clima =
+                weatherService.obtenerClimaParaVueloML(
+                        destino.lat(),
+                        destino.lng(),
+                        vuelo.ciudadDestino(),
+                        vuelo.paisDestino(),
+                        fechaPartida
+                );
+
         return new DatosConsultaVuelo(
                 vuelo.aerolineaIata(),
                 vuelo.destinoIata(),
                 vuelo.origenIata(),
                 fechaPartida,
-                distanciaKm
+                distanciaKm,
+                clima.temp_mean(),
+                clima.precipitation(),
+                clima.wind_speed()
         );
     }
+
 }

@@ -1,15 +1,13 @@
 package com.alura.flight_prediction.controller;
 
+import com.alura.flight_prediction.dto.PageResponse;
 import com.alura.flight_prediction.dto.route.FlightRouteDTO;
 import com.alura.flight_prediction.dto.airport.AirportDTO;
 import com.alura.flight_prediction.dto.flight.FlightDetailDTO;
 import com.alura.flight_prediction.service.AirLabsService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,5 +33,19 @@ public class AirLabsController {
     public List<AirportDTO> getAirports(@PathVariable String airport) {
         return airLabsService.getAirportsByCity(airport);
     }
+
+    @GetMapping("/{airline}/future")
+    public PageResponse<FlightRouteDTO> getFutureRoutes(
+            @PathVariable String airline,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return airLabsService.getFutureRoutesByAirline(
+                airline,
+                page,
+                size
+        );
+    }
+
 
 }

@@ -13,7 +13,12 @@ public record DatosConsultaVuelo(
     @NotBlank String destino,
     @NotBlank String origen,
     @NotNull @Future LocalDateTime fechaPartida,
-    @NotNull @Positive Integer distancia
+    @NotNull @Positive Integer distancia,
+
+    // 🌦️ VARIABLES CLIMÁTICAS PARA ML
+    @NotNull Double temp_mean,
+    @NotNull Double precipitation,
+    @NotNull Double wind_speed
 ) {
 
 }
