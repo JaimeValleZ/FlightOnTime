@@ -41,6 +41,41 @@ public class AirLabsService {
         this.weatherService = weatherService;
     }
 
+    //Obtener detalles de un vuelo sin hacer llamadas repetitivas a la API
+    public FlightDetailDTO getFlightSpecificDetail(String flightIata) {
+
+        AirLabsFlightResponseDTO response =
+                airLabsClient.getFlight(flightIata, apiKey);
+
+        if (response == null || response.response() == null) {
+            return null;
+        }
+
+        AirLabsFlightDTO f = response.response();
+
+        LocalDateTime fechaVuelo = LocalDateTime.parse(
+                f.dep_time_utc(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        );
+
+        return new FlightDetailDTO(
+                f.airline_name(),
+                f.airline_iata(),
+                f.flight_iata(),
+                f.dep_name(),
+                f.dep_iata(),
+                f.dep_country(),
+                f.dep_city(),
+                f.arr_name(),
+                f.arr_iata(),
+                f.arr_country(),
+                f.arr_city(),
+                f.dep_time(),
+                null
+        );
+    }
+
+
     //Rutas por aerolinea
     public List<FlightRouteDTO> getRoutesByAirline(String airlineIata) {
 
@@ -159,7 +194,7 @@ public class AirLabsService {
                 // 1️⃣ Enriquecer
                 .map(r -> {
                     try {
-                        FlightDetailDTO detail = getFlightDetail(r.flight_iata());
+                        FlightDetailDTO detail = getFlightSpecificDetail(r.flight_iata());
                         return mapToInternalDTO(r, detail);
                     } catch (Exception e) {
                         log.warn("Vuelo descartado {} por error", r.flight_iata());
