@@ -1,7 +1,6 @@
 package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.client.AirLabsClient;
-import com.alura.flight_prediction.dto.PageResponse;
 import com.alura.flight_prediction.dto.airport.AirLabsAirportResponseDTO;
 import com.alura.flight_prediction.dto.airport.AirportDTO;
 import com.alura.flight_prediction.dto.flight.AirLabsFlightDTO;
@@ -17,11 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AirLabsService {
@@ -32,7 +30,7 @@ public class AirLabsService {
     private final WeatherService weatherService;
 
 
-    @Value("191bb5fa-7be7-44ab-866a-adc19c190906")
+    @Value("4f7a30b5-6917-46e5-a1fa-02e2ed56802f")
     private String apiKey;
 
     public AirLabsService(AirLabsClient airLabsClient, WeatherService weatherService
@@ -71,6 +69,8 @@ public class AirLabsService {
                 f.arr_country(),
                 f.arr_city(),
                 f.dep_time(),
+                f.arr_time(),
+                f.duration(),
                 null
         );
     }
@@ -173,15 +173,15 @@ public class AirLabsService {
                 f.arr_country(),
                 f.arr_city(),
                 f.dep_time(),
+                f.arr_time(),
+                f.duration(),
                 clima
         );
     }
 
-    //Obtener rutas por paginacion
-    public PageResponse<FlightRouteDTO> getFutureRoutesByAirline(
-            String airlineIata,
-            int page,
-            int size
+// Obtener rutas futuras filtradas (sin paginación)
+    public List<FlightRouteDTO> getFutureRoutesByAirline(
+            String airlineIata
     ) {
 
         AirLabsRoutesResponseDTO response =
@@ -189,12 +189,13 @@ public class AirLabsService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<FlightRouteDTO> filtered = response.response().stream()
+        return response.response().stream()
 
-                // 1️⃣ Enriquecer
+                // 1️⃣ Enriquecer con detalle de vuelo
                 .map(r -> {
                     try {
-                        FlightDetailDTO detail = getFlightSpecificDetail(r.flight_iata());
+                        FlightDetailDTO detail =
+                                getFlightSpecificDetail(r.flight_iata());
                         return mapToInternalDTO(r, detail);
                     } catch (Exception e) {
                         log.warn("Vuelo descartado {} por error", r.flight_iata());
@@ -203,9 +204,9 @@ public class AirLabsService {
                 })
 
                 // 2️⃣ Eliminar nulos
-                .filter(f -> f != null)
+                .filter(Objects::nonNull)
 
-                // 3️⃣ Información completa
+                // 3️⃣ Información mínima completa
                 .filter(f ->
                         f.fecha() != null &&
                                 f.origen() != null &&
@@ -225,26 +226,10 @@ public class AirLabsService {
                     }
                 })
 
-                // 5️⃣ Ordenar por fecha
-                .sorted((a, b) -> a.horaSalida().compareTo(b.horaSalida()))
+                // 5️⃣ Ordenar por hora de salida
+                .sorted(Comparator.comparing(FlightRouteDTO::horaSalida))
 
                 .toList();
-
-        // 6️⃣ Paginación manual
-        int total = filtered.size();
-        int fromIndex = Math.min(page * size, total);
-        int toIndex = Math.min(fromIndex + size, total);
-
-        List<FlightRouteDTO> pageContent =
-                filtered.subList(fromIndex, toIndex);
-
-        return new PageResponse<>(
-                pageContent,
-                page,
-                size,
-                total,
-                (int) Math.ceil((double) total / size)
-        );
     }
 
 }
