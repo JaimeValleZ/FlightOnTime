@@ -19,22 +19,20 @@ public class AirLabsController {
     @Autowired
     private AirLabsService airLabsService;
 
-    @GetMapping("/{airline}")
-    public List<FlightRouteDTO> getRoutes(@PathVariable String airline) {
-        return airLabsService.getRoutesByAirline(airline);
-    }
-
     //Detalles de un vuelo
     @GetMapping("/vuelo/{flight}")
-    public FlightDetailDTO getFlight(@PathVariable String flight) {
-        return airLabsService.getFlightDetail(flight);
+    public ResponseEntity<FlightDetailDTO> getFlight(@PathVariable String flight) {
+        FlightDetailDTO flightDetail = airLabsService.getFlightDetail(flight);
+        return ResponseEntity.ok(flightDetail);
     }
 
     @GetMapping("/airport/{airport}")
-    public List<AirportDTO> getAirports(@PathVariable String airport) {
-        return airLabsService.getAirportsByCity(airport);
+    public ResponseEntity<List<AirportDTO>> getAirports(@PathVariable String airport) {
+        List<AirportDTO> airports = airLabsService.getAirportsByCity(airport);
+        return ResponseEntity.ok(airports);
     }
 
+    //Rutas futuras por aerolinea
     @GetMapping("/{airline}/future")
     public ResponseEntity<List<FlightRouteDTO>> getFutureRoutes(@PathVariable String airline) {
         List<FlightRouteDTO> routes = airLabsService.getFutureRoutesByAirline(airline);

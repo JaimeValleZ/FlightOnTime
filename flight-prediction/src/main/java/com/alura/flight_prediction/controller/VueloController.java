@@ -25,14 +25,6 @@ public class VueloController {
         return "Test OK";
     }
 
-    @PostMapping("/predict")
-    public ResponseEntity<DatosRespuestaVuelo> predictChurn(
-            @RequestBody DatosConsultaVuelo request) {
-
-        DatosRespuestaVuelo prediction = vueloService.obtenerPrediccion2(request);
-        return ResponseEntity.ok(prediction);
-    }
-
     @PostMapping("/predict-from-flight/{flightIata}")
     public ResponseEntity<DatosRespuestaVuelo> predictFromFlight(
             @PathVariable String flightIata) {
@@ -42,8 +34,6 @@ public class VueloController {
 
         return ResponseEntity.ok(respuesta);
     }
-
-
 
 }
 

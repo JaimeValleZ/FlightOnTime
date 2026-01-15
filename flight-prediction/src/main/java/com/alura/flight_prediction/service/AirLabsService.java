@@ -39,7 +39,9 @@ public class AirLabsService {
         this.weatherService = weatherService;
     }
 
-    //Obtener detalles de un vuelo sin hacer llamadas repetitivas a la API
+    /* Obtener detalles de un vuelo sin llamar a la API del clima
+    *  y evitar llamar la funcion de obtener aeropuerto.
+    *  Creado para reducir el tiempo de respuesta de la API.*/
     public FlightDetailDTO getFlightSpecificDetail(String flightIata) {
 
         AirLabsFlightResponseDTO response =
@@ -76,43 +78,7 @@ public class AirLabsService {
     }
 
 
-    //Rutas por aerolinea
-    public List<FlightRouteDTO> getRoutesByAirline(String airlineIata) {
-
-        AirLabsRoutesResponseDTO response =
-                airLabsClient.getRoutes(airlineIata, apiKey);
-
-        return response.response().stream()
-                .map(r -> {
-                    FlightDetailDTO detail = null;
-                    try {
-                        detail = getFlightDetail(r.flight_iata());
-                    } catch (Exception ex) {
-                        log.warn(
-                                "No se pudo obtener detalle de vuelo para flight_iata={} (airline_iata={}, dep={}, arr={}). Se retorna ruta parcial. Causa: {}",
-                                r.flight_iata(), r.airline_iata(), r.dep_iata(), r.arr_iata(), ex.toString()
-                        );
-                    }
-                    return mapToInternalDTO(r, detail);
-                })
-                .toList();
-    }
-
-    private FlightRouteDTO mapToInternalDTO(AirLabsRouteDTO r, FlightDetailDTO detail) {
-        return new FlightRouteDTO(
-                r.airline_iata(),
-                r.flight_iata(),
-                r.dep_iata(),
-                r.arr_iata(),
-                detail != null ? detail.origen() : null,
-                detail != null ? detail.destino() : null,
-                detail != null ? detail.horaSalida() : null,
-                r.dep_time(),
-                r.arr_time()
-        );
-    }
-
-    //Aeropuertos
+    /*Obtener informacion de aeropuertos*/
     public List<AirportDTO> getAirportsByCity(String airportCode){
 
         AirLabsAirportResponseDTO response =
@@ -133,6 +99,7 @@ public class AirLabsService {
         );
     }
 
+    /* Metodo para obtener detalles de un vuelo con clima*/
     public FlightDetailDTO getFlightDetail(String flightIata) {
 
         AirLabsFlightResponseDTO response =
@@ -191,7 +158,7 @@ public class AirLabsService {
 
         return response.response().stream()
 
-                // 1️⃣ Enriquecer con detalle de vuelo
+                //  Enriquecer con detalle de vuelo
                 .map(r -> {
                     try {
                         FlightDetailDTO detail =
@@ -203,17 +170,17 @@ public class AirLabsService {
                     }
                 })
 
-                // 2️⃣ Eliminar nulos
+                //  Eliminar nulos
                 .filter(Objects::nonNull)
 
-                // 3️⃣ Información mínima completa
+                // Información mínima completa
                 .filter(f ->
                         f.fecha() != null &&
                                 f.origen() != null &&
                                 f.destino() != null
                 )
 
-                // 4️⃣ Solo vuelos futuros
+                // Solo vuelos futuros
                 .filter(f -> {
                     try {
                         LocalDateTime salida = LocalDateTime.parse(
@@ -226,10 +193,25 @@ public class AirLabsService {
                     }
                 })
 
-                // 5️⃣ Ordenar por hora de salida
+                // Ordenar por hora de salida
                 .sorted(Comparator.comparing(FlightRouteDTO::horaSalida))
 
                 .toList();
+    }
+
+    /* Mapear DTO con informacion de rutas y detalle de vuelo*/
+    private FlightRouteDTO mapToInternalDTO(AirLabsRouteDTO r, FlightDetailDTO detail) {
+        return new FlightRouteDTO(
+                r.airline_iata(),
+                r.flight_iata(),
+                r.dep_iata(),
+                r.arr_iata(),
+                detail != null ? detail.origen() : null,
+                detail != null ? detail.destino() : null,
+                detail != null ? detail.horaSalida() : null,
+                r.dep_time(),
+                r.arr_time()
+        );
     }
 
 }
