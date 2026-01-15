@@ -32,7 +32,7 @@ public class AirLabsService {
     private final WeatherService weatherService;
 
 
-    @Value("191bb5fa-7be7-44ab-866a-adc19c190906")
+    @Value("e24bb432-5985-4b2b-8187-4204a45b9f2d")
     private String apiKey;
 
     public AirLabsService(AirLabsClient airLabsClient, WeatherService weatherService
