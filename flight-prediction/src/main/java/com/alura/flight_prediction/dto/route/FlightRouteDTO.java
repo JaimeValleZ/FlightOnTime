@@ -11,6 +11,7 @@ public record FlightRouteDTO(
         String origen,
         String destino,
         String fecha,
+        LocalDateTime fechaDateTime,
         String horaSalida,
         String horaLlegada
 ) {
