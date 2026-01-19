@@ -15,6 +15,8 @@ public record FlightDetailDTO(
         String paisDestino,
         String ciudadDestino,
         String horaSalida,
+        String horaLlegada,
+        Integer duracion,
         WeatherDTO climaActual
 
 
