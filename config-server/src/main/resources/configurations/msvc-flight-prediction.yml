@@ -8,7 +8,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/flight_prediction
     username: root
-    password: 80032671j
+    password: 3brutales247_
   jpa:
     hibernate:
       ddl-auto: update
