@@ -8,8 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="gateway" />
         <module name="eureka" />
+        <module name="gateway" />
       </profile>
       <profile name="Annotation profile for flight-prediction-api" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />

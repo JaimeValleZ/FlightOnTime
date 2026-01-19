@@ -32,6 +32,7 @@ public class VueloController {
         DatosRespuestaVuelo prediction = vueloService.obtenerPrediccion2(request);
         return ResponseEntity.ok(prediction);
     }
+
     @PostMapping("/predict-from-flight/{flightIata}")
     public ResponseEntity<DatosRespuestaVuelo> predictFromFlight(
             @PathVariable String flightIata) {

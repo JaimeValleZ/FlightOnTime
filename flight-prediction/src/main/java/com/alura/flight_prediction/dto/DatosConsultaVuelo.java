@@ -15,7 +15,7 @@ public record DatosConsultaVuelo(
     @NotNull @Future LocalDateTime fechaPartida,
     @NotNull @Positive Integer distancia,
 
-    // 🌦️ VARIABLES CLIMÁTICAS PARA ML
+    //  VARIABLES CLIMÁTICAS PARA ML
     @NotNull Double temp_mean,
     @NotNull Double precipitation,
     @NotNull Double wind_speed

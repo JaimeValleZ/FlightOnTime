@@ -1,7 +1,6 @@
 package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.client.AirLabsClient;
-import com.alura.flight_prediction.dto.PageResponse;
 import com.alura.flight_prediction.dto.airport.AirLabsAirportResponseDTO;
 import com.alura.flight_prediction.dto.airport.AirportDTO;
 import com.alura.flight_prediction.dto.flight.AirLabsFlightDTO;
@@ -13,18 +12,26 @@ import com.alura.flight_prediction.dto.route.FlightRouteDTO;
 import com.alura.flight_prediction.dto.weather.WeatherDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 public class AirLabsService {
+
+    @Autowired
+    @Qualifier("airlabsExecutor")
+    private Executor airlabsExecutor;
 
     private static final Logger log = LoggerFactory.getLogger(AirLabsService.class);
 
@@ -32,7 +39,7 @@ public class AirLabsService {
     private final WeatherService weatherService;
 
 
-    @Value("e24bb432-5985-4b2b-8187-4204a45b9f2d")
+    @Value("8b655520-2671-4349-bcda-7dbdef6aea8b")
     private String apiKey;
 
     public AirLabsService(AirLabsClient airLabsClient, WeatherService weatherService
@@ -41,7 +48,14 @@ public class AirLabsService {
         this.weatherService = weatherService;
     }
 
-    //Obtener detalles de un vuelo sin hacer llamadas repetitivas a la API
+    /* Obtener detalles de un vuelo sin llamar a la API del clima
+     *  y evitar llamar la funcion de obtener aeropuerto.
+     *  Creado para reducir el tiempo de respuesta de la API.*/
+    @Cacheable(
+            value = "flight-detail",
+            key = "#flightIata",
+            unless = "#result == null"
+    )
     public FlightDetailDTO getFlightSpecificDetail(String flightIata) {
 
         AirLabsFlightResponseDTO response =
@@ -71,49 +85,15 @@ public class AirLabsService {
                 f.arr_country(),
                 f.arr_city(),
                 f.dep_time(),
+                f.arr_time(),
+                f.duration(),
                 null
         );
     }
 
 
-    //Rutas por aerolinea
-    public List<FlightRouteDTO> getRoutesByAirline(String airlineIata) {
-
-        AirLabsRoutesResponseDTO response =
-                airLabsClient.getRoutes(airlineIata, apiKey);
-
-        return response.response().stream()
-                .map(r -> {
-                    FlightDetailDTO detail = null;
-                    try {
-                        detail = getFlightDetail(r.flight_iata());
-                    } catch (Exception ex) {
-                        log.warn(
-                                "No se pudo obtener detalle de vuelo para flight_iata={} (airline_iata={}, dep={}, arr={}). Se retorna ruta parcial. Causa: {}",
-                                r.flight_iata(), r.airline_iata(), r.dep_iata(), r.arr_iata(), ex.toString()
-                        );
-                    }
-                    return mapToInternalDTO(r, detail);
-                })
-                .toList();
-    }
-
-    private FlightRouteDTO mapToInternalDTO(AirLabsRouteDTO r, FlightDetailDTO detail) {
-        return new FlightRouteDTO(
-                r.airline_iata(),
-                r.flight_iata(),
-                r.dep_iata(),
-                r.arr_iata(),
-                detail != null ? detail.origen() : null,
-                detail != null ? detail.destino() : null,
-                detail != null ? detail.horaSalida() : null,
-                r.dep_time(),
-                r.arr_time()
-        );
-    }
-
-    //Aeropuertos
-    public List<AirportDTO> getAirportsByCity(String airportCode){
+    /*Obtener informacion de aeropuertos*/
+    public List<AirportDTO> getAirportsByCity(String airportCode) {
 
         AirLabsAirportResponseDTO response =
                 airLabsClient.getAirport(airportCode, apiKey);
@@ -133,6 +113,7 @@ public class AirLabsService {
         );
     }
 
+    /* Metodo para obtener detalles de un vuelo con clima*/
     public FlightDetailDTO getFlightDetail(String flightIata) {
 
         AirLabsFlightResponseDTO response =
@@ -173,78 +154,78 @@ public class AirLabsService {
                 f.arr_country(),
                 f.arr_city(),
                 f.dep_time(),
+                f.arr_time(),
+                f.duration(),
                 clima
         );
     }
 
-    //Obtener rutas por paginacion
-    public PageResponse<FlightRouteDTO> getFutureRoutesByAirline(
-            String airlineIata,
-            int page,
-            int size
-    ) {
+    // Obtener rutas futuras filtradas (sin paginación)
+    public List<FlightRouteDTO> getFutureRoutesByAirline(String airlineIata) {
 
         AirLabsRoutesResponseDTO response =
                 airLabsClient.getRoutes(airlineIata, apiKey);
 
+        if (response == null || response.response() == null) {
+            return List.of();
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
-        List<FlightRouteDTO> filtered = response.response().stream()
+        List<CompletableFuture<FlightRouteDTO>> futures =
+                response.response().stream()
 
-                // 1️⃣ Enriquecer
-                .map(r -> {
-                    try {
-                        FlightDetailDTO detail = getFlightSpecificDetail(r.flight_iata());
-                        return mapToInternalDTO(r, detail);
-                    } catch (Exception e) {
-                        log.warn("Vuelo descartado {} por error", r.flight_iata());
-                        return null;
-                    }
-                })
+                        // filtro rápido ANTES de llamar APIs
+                        .filter(r -> r.flight_iata() != null && r.dep_time() != null)
 
-                // 2️⃣ Eliminar nulos
-                .filter(f -> f != null)
+                        .map(r -> CompletableFuture.supplyAsync(() -> {
+                            try {
+                                FlightDetailDTO detail =
+                                        getFlightSpecificDetail(r.flight_iata());
+                                return mapToInternalDTO(r, detail);
+                            } catch (Exception e) {
+                                log.warn("Descartado vuelo {}", r.flight_iata());
+                                return null;
+                            }
+                        }, airlabsExecutor))
 
-                // 3️⃣ Información completa
-                .filter(f ->
-                        f.fecha() != null &&
-                                f.origen() != null &&
-                                f.destino() != null
-                )
+                        .toList();
 
-                // 4️⃣ Solo vuelos futuros
-                .filter(f -> {
-                    try {
-                        LocalDateTime salida = LocalDateTime.parse(
-                                f.fecha(),
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-                        );
-                        return salida.isAfter(now);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-
-                // 5️⃣ Ordenar por fecha
-                .sorted((a, b) -> a.horaSalida().compareTo(b.horaSalida()))
-
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .filter(f -> f.fecha() != null)
+                .filter(f -> f.fechaDateTime().isAfter(now))
+                .sorted(Comparator.comparing(FlightRouteDTO::horaSalida))
                 .toList();
+    }
 
-        // 6️⃣ Paginación manual
-        int total = filtered.size();
-        int fromIndex = Math.min(page * size, total);
-        int toIndex = Math.min(fromIndex + size, total);
+    /* Mapear DTO con informacion de rutas y detalle de vuelo*/
+    private FlightRouteDTO mapToInternalDTO(
+            AirLabsRouteDTO r,
+            FlightDetailDTO detail
+    ) {
+        if (detail == null || detail.horaSalida() == null) return null;
 
-        List<FlightRouteDTO> pageContent =
-                filtered.subList(fromIndex, toIndex);
+        LocalDateTime salida = LocalDateTime.parse(
+                detail.horaSalida(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        );
 
-        return new PageResponse<>(
-                pageContent,
-                page,
-                size,
-                total,
-                (int) Math.ceil((double) total / size)
+        return new FlightRouteDTO(
+                r.airline_iata(),
+                r.flight_iata(),
+                r.dep_iata(),
+                r.arr_iata(),
+                detail.origen(),
+                detail.destino(),
+                detail.horaSalida(),
+                salida,
+                r.dep_time(),
+                r.arr_time()
         );
     }
+
+
 
 }
