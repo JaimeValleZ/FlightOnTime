@@ -19,7 +19,6 @@ public class VueloService {
     public VueloService(MlPredictionMicroServicePy mlClient) {
         this.mlClient = mlClient;
     }
-
     public DatosRespuestaVuelo obtenerPrediccion2(DatosConsultaVuelo request) {
         var response = mlClient.predictChurn2(request);
         var vuelo = new Vuelo(null, request.aerolinea(), request.origen(), request.destino(),
