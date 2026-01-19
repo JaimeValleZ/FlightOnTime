@@ -22,6 +22,11 @@ spring:
           predicates:
             - Path=/api/**
 
+        - id: FlightStats
+          uri: http://localhost:8090
+          predicates:
+              - Path=/vuelos/stats/**
+
         - id: auth
           uri: http://localhost:8090
           predicates:
