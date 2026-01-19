@@ -8,12 +8,12 @@
 
 	<!-- Referencia al POM padre -->
 	<parent>
-		<groupId>com.mycompany.app</groupId>
-		<artifactId>FlightOnTime</artifactId>
-		<version>1.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+        <groupId>com.mycompany.app</groupId>
+        <artifactId>flight-prediction-api</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
+    <groupId>com.alura.flight-prediction-api</groupId>
 	<artifactId>config-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>

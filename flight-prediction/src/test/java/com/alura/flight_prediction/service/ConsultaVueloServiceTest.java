@@ -1,4 +1,4 @@
-package com.alura.flightprediction.service;
+package com.alura.flight_prediction.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

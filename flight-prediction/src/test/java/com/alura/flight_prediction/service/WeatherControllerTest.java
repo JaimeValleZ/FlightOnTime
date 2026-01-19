@@ -1,4 +1,4 @@
-package com.alura.flightprediction.controller;
+package com.alura.flight_prediction.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
