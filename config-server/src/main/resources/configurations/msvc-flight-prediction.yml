@@ -6,20 +6,21 @@ spring:
     name: msvc-flight-prediction
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/flight_prediction
+    url: jdbc:mysql://mysqldb:3306/flight_prediction
     username: root
-    password:
+    password: root
   jpa:
     hibernate:
       ddl-auto: update
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
 eureka:
   instance:
-    hostname: localhost
+    prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 
 feign:
   client:
@@ -27,6 +28,3 @@ feign:
       default:
         connectTimeout: 3000
         readTimeout: 3000
-
-
-
