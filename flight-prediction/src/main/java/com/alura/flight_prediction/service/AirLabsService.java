@@ -39,7 +39,7 @@ public class AirLabsService {
     private final WeatherService weatherService;
 
 
-    @Value("ec01d78a-acd5-4d9d-86ab-6d84bca4a81e")
+    @Value("866fe8db-6ee9-49dd-8130-6f7fa5f73958")
     private String apiKey;
 
     public AirLabsService(AirLabsClient airLabsClient, WeatherService weatherService
@@ -215,14 +215,14 @@ public class AirLabsService {
         return new FlightRouteDTO(
                 r.airline_iata(),
                 r.flight_iata(),
-                r.dep_iata(),
-                r.arr_iata(),
+                detail.origenIata(),
+                detail.destinoIata(),
                 detail.origen(),
                 detail.destino(),
                 detail.horaSalida(),
                 salida,
-                r.dep_time(),
-                r.arr_time()
+                detail.horaSalida(),
+                detail.horaLlegada()
         );
     }
 
