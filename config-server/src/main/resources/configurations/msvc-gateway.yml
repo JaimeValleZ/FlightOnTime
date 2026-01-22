@@ -1,0 +1,39 @@
+eureka:
+  client:
+    register-with-eureka: false
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: msvc-gateway
+  cloud:
+    gateway:
+      routes:
+
+        - id: prediccion
+          #uri: http://flight-prediction:8090
+          uri: http://localhost:8090
+          predicates:
+            - Path=/prediccion/**
+
+        - id: api-routes
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/**
+
+        - id: FlightStats
+          uri: http://localhost:8090
+          predicates:
+              - Path=/vuelos/stats/**
+
+        - id: auth
+          uri: http://localhost:8090
+          predicates:
+            - Path=/login/**,/usuarios/**
+
+        - id: spring-doc
+          uri: http://localhost:8090
+          predicates:
+            - Path=/v3/api-docs/**, /swagger-ui/**, /swagger-ui.html

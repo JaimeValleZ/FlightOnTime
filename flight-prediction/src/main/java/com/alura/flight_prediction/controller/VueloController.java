@@ -1,0 +1,40 @@
+package com.alura.flight_prediction.controller;
+
+import com.alura.flight_prediction.dto.DatosConsultaVuelo;
+import com.alura.flight_prediction.dto.DatosRespuestaVuelo;
+import com.alura.flight_prediction.service.ConsultaVueloService;
+import com.alura.flight_prediction.service.VueloService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/prediccion")
+@SecurityRequirement(name = "bearer-key")
+public class VueloController {
+
+    @Autowired
+    private VueloService vueloService;
+
+    @Autowired
+    private ConsultaVueloService consultaVueloService;
+
+    @GetMapping("/test")
+    private String test() {
+        return "Test OK";
+    }
+
+    @PostMapping("/predict-from-flight/{flightIata}")
+    public ResponseEntity<DatosRespuestaVuelo> predictFromFlight(
+            @PathVariable String flightIata) {
+
+        DatosConsultaVuelo datos = consultaVueloService.construirConsultaVuelo(flightIata);
+        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datos);
+
+        return ResponseEntity.ok(respuesta);
+    }
+
+}
+
+
