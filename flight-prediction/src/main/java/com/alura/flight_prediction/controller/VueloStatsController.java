@@ -2,6 +2,10 @@ package com.alura.flight_prediction.controller;
 
 import com.alura.flight_prediction.dto.VueloStatsDTO;
 import com.alura.flight_prediction.service.VueloStatsService;
+<<<<<<< HEAD
+=======
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+>>>>>>> pruebas-alison
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/vuelos/stats")
+<<<<<<< HEAD
+=======
+@SecurityRequirement(name = "bearer-key")
+>>>>>>> pruebas-alison
 public class VueloStatsController {
 
     @Autowired

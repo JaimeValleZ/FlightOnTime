@@ -8,10 +8,25 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
+<<<<<<< HEAD
         <module name="flight-prediction" />
         <module name="eureka" />
         <module name="gateway" />
       </profile>
+=======
+        <module name="eureka" />
+        <module name="gateway" />
+      </profile>
+      <profile name="Annotation profile for flight-prediction-api" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="flight-prediction" />
+      </profile>
+>>>>>>> pruebas-alison
     </annotationProcessing>
   </component>
   <component name="JavacSettings">

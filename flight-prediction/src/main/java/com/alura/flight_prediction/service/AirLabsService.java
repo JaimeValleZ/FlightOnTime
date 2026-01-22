@@ -39,7 +39,11 @@ public class AirLabsService {
     private final WeatherService weatherService;
 
 
+<<<<<<< HEAD
     @Value("866fe8db-6ee9-49dd-8130-6f7fa5f73958")
+=======
+    @Value("77cc6ee9-d08a-4a4f-895e-d51b3e7ebd06")
+>>>>>>> pruebas-alison
     private String apiKey;
 
     public AirLabsService(AirLabsClient airLabsClient, WeatherService weatherService
@@ -228,4 +232,8 @@ public class AirLabsService {
 
 
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> pruebas-alison

@@ -13,6 +13,7 @@ spring:
       routes:
 
         - id: prediccion
+          #uri: http://flight-prediction:8090
           uri: http://localhost:8090
           predicates:
             - Path=/prediccion/**

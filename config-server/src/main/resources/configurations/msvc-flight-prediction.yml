@@ -6,6 +6,7 @@ spring:
     name: msvc-flight-prediction
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://mysql:3306/flight_prediction
     url: jdbc:mysql://localhost:3306/flight_prediction
     username: root
     password: 80032671j
@@ -16,10 +17,13 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 eureka:
   instance:
+    #hostname: flight-prediction
     hostname: localhost
   client:
     service-url:
+      #defaultZone: http://eureka:8761/eureka/
       defaultZone: http://localhost:8761/eureka/
+
 
 feign:
   client:
@@ -28,5 +32,26 @@ feign:
         connectTimeout: 3000
         readTimeout: 3000
 
+# SWAGGER/OpenAPI Config
+springdoc:
+  packages-to-scan:
+    - com.alura.flight_prediction.controller
+  packages-to-exclude:
+    - com.alura.flight_prediction.client
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+  paths-to-match:
+    - /api/**
+    - /prediccion/**
+    - /usuarios/**
+    - /vuelos/stats/**
+    - /login/**
 
 
+logging:
+  level:
+    org.springdoc: DEBUG
+    org.springframework.web: INFO
