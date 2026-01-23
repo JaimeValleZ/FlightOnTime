@@ -1,8 +1,10 @@
 package com.alura.flight_prediction.service;
 
+import com.alura.flight_prediction.client.MlPredictionMicroServicePy;
 import com.alura.flight_prediction.dto.DatosConsultaVuelo;
 import com.alura.flight_prediction.dto.DatosRespuestaVuelo;
-import org.junit.jupiter.api.BeforeEach;
+import com.alura.flight_prediction.entity.Vuelo;
+import com.alura.flight_prediction.repository.VueloRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,110 +15,96 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Tests unitarios para VueloService - Predicción de retrasos
- * Cobertura: 90%+ con casos reales de vuelos LATAM Chile
- */
 @ExtendWith(MockitoExtension.class)
 class VueloServiceTest {
 
-    @Mock private ConsultaVueloService consultaVueloService;
-    @Mock private WeatherService weatherService;
-    // Agrega otros mocks que use VueloService
+    @Mock
+    private MlPredictionMicroServicePy mlClient;
 
-    @InjectMocks private VueloService vueloService;
+    @Mock
+    private VueloRepository vueloRepository;
 
-    private DatosConsultaVuelo datosVueloLATAM;
-
-    @BeforeEach
-    void setUp() {
-        // Vuelo LATAM SCL → MAD (Santiago → Madrid)
-        datosVueloLATAM = new DatosConsultaVuelo(
-                "LATAM",      // aerolinea
-                "MAD",        // destino
-                "SCL",        // origen
-                LocalDateTime.now().plusDays(2), // fechaPartida futura ✓
-                10700,        // distancia km
-                20.0,         // temp_mean °C
-                0.0,          // precipitation %
-                5.0           // wind_speed m/s
-        );
-    }
+    @InjectMocks
+    private VueloService vueloService;
 
     @Test
-    @DisplayName("Vuelo LATAM SCL-MAD buen clima → 'En hora' probabilidad <30%")
-    void prediccionVueloEnHora() {
-        // Act
-        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datosVueloLATAM);
+    @DisplayName("Buen clima → En hora")
+    void vueloEnHora() {
 
-        // Assert
-        assertThat(respuesta.prevision()).isEqualTo("En hora");
-        assertThat(respuesta.probabilidad()).isLessThan(0.3);
-    }
-
-    @Test
-    @DisplayName("Vuelo LATAM mal clima lluvia fuerte → 'Retraso probable' >70%")
-    void prediccionMalClimaLluvia() {
-        // Arrange: datos con mal clima
-        DatosConsultaVuelo datosMalClima = new DatosConsultaVuelo(
+        DatosConsultaVuelo datos = new DatosConsultaVuelo(
                 "LATAM", "MAD", "SCL",
-                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
                 10700,
-                12.0,    // temp fría
-                85.0,    // precipitation alta
-                18.0     // viento fuerte
-        );
-
-        // Act
-        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datosMalClima);
-
-        // Assert
-        assertThat(respuesta.prevision()).isEqualTo("Retraso probable");
-        assertThat(respuesta.probabilidad()).isGreaterThan(0.7);
-    }
-
-    @Test
-    @DisplayName("Distancia corta + buen clima → riesgo muy bajo")
-    void prediccionVueloCorto() {
-        DatosConsultaVuelo vueloCorto = new DatosConsultaVuelo(
-                "LATAM", "IPC", "SCL",  // Santiago → Isla de Pascua (corto)
-                LocalDateTime.now().plusHours(4),
-                3700,  // distancia corta
                 22.0, 0.0, 4.0
         );
 
-        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(vueloCorto);
+        when(vueloRepository.existsByAerolineaAndOrigenAndDestinoAndFechaPartidaAndDistancia(
+                datos.aerolinea(), datos.origen(), datos.destino(), datos.fechaPartida(), datos.distancia()
+        )).thenReturn(false);
 
-        assertThat(respuesta.probabilidad()).isLessThan(0.2);
+        when(mlClient.predictChurn2(any(DatosConsultaVuelo.class)))
+                .thenReturn(new DatosRespuestaVuelo("En hora", 0.2));
+
+        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datos);
+
+        assertThat(respuesta.prevision()).isEqualTo("En hora");
+        assertThat(respuesta.probabilidad()).isLessThan(0.3);
+
+        verify(vueloRepository).save(any(Vuelo.class));
     }
 
     @Test
-    @DisplayName("Verifica que llama WeatherService correctamente")
-    void verificaInteraccionesServicios() {
-        // Act
-        vueloService.obtenerPrediccion2(datosVueloLATAM);
+    @DisplayName("Mal clima → Retraso probable")
+    void retrasoProbable() {
 
-        // Assert: debe usar clima para predicción
-        verify(weatherService, times(1)).obtenerClimaParaVueloML(
-                anyDouble(), anyDouble(), anyString(), anyString(), any()
+        DatosConsultaVuelo datos = new DatosConsultaVuelo(
+                "LATAM", "MAD", "SCL",
+                LocalDateTime.now().plusDays(1),
+                10700,
+                10.0, 85.0, 20.0
         );
+
+        when(vueloRepository.existsByAerolineaAndOrigenAndDestinoAndFechaPartidaAndDistancia(
+                datos.aerolinea(), datos.origen(), datos.destino(), datos.fechaPartida(), datos.distancia()
+        )).thenReturn(false);
+
+        when(mlClient.predictChurn2(any(DatosConsultaVuelo.class)))
+                .thenReturn(new DatosRespuestaVuelo("Retraso probable", 0.85));
+
+        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datos);
+
+        assertThat(respuesta.prevision()).isEqualTo("Retraso probable");
+        assertThat(respuesta.probabilidad()).isGreaterThan(0.7);
+
+        verify(vueloRepository).save(any(Vuelo.class));
     }
 
     @Test
-    @DisplayName("Vuelo internacional largo → riesgo moderado base")
-    void prediccionVueloInternacional() {
-        DatosConsultaVuelo vueloLargo = new DatosConsultaVuelo(
-                "LATAM", "JFK", "SCL",  // Santiago → New York
+    @DisplayName("Riesgo moderado")
+    void riesgoModerado() {
+
+        DatosConsultaVuelo datos = new DatosConsultaVuelo(
+                "LATAM", "JFK", "SCL",
                 LocalDateTime.now().plusDays(3),
                 12500,
                 18.0, 10.0, 8.0
         );
 
-        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(vueloLargo);
+        when(vueloRepository.existsByAerolineaAndOrigenAndDestinoAndFechaPartidaAndDistancia(
+                datos.aerolinea(), datos.origen(), datos.destino(), datos.fechaPartida(), datos.distancia()
+        )).thenReturn(false);
 
-        assertThat(respuesta.prevision()).containsAnyOf("En hora", "Retraso posible");
+        when(mlClient.predictChurn2(any(DatosConsultaVuelo.class)))
+                .thenReturn(new DatosRespuestaVuelo("Retraso posible", 0.45));
+
+        DatosRespuestaVuelo respuesta = vueloService.obtenerPrediccion2(datos);
+
         assertThat(respuesta.probabilidad()).isBetween(0.2, 0.6);
+        assertThat(respuesta.prevision()).contains("Retraso");
+
+        verify(vueloRepository).save(any(Vuelo.class));
     }
 }

@@ -8,19 +8,18 @@ import org.springframework.test.context.ActiveProfiles;
 /**
  * Test de INTEGRACIÓN COMPLETA
  * Valida que toda la aplicación arranque sin errores:
- * - Config Server/Eureka OFF (application-test.properties)
- * - H2 database OK
- * - Todos los servicios/controllers inyectados
- * - Seguridad básica desactivada en test
+ * - Config Server / Eureka desactivados (profile test)
+ * - Base de datos H2 funcionando
+ * - Todos los servicios y controllers correctamente inyectados
+ * - Seguridad básica desactivada para pruebas
  */
 @SpringBootTest
-@ActiveProfiles("test")  // ← Usa config test perfecta
-class FlightPredictionApplicationTests {
+@ActiveProfiles("test")
+class FlightPredictionApplicationTest {
 
     @Test
-    @DisplayName("✅ Contexto completo arranca - Todos los beans OK")
+    @DisplayName("✅ Contexto completo arranca correctamente")
     void contextLoads() {
+        // Spring Boot valida automáticamente todos los beans
     }
-    // Spring Boot valida automáticamente todos los beans
-
 }

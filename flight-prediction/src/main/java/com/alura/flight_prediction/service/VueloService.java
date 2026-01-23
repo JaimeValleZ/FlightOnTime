@@ -5,18 +5,16 @@ import com.alura.flight_prediction.dto.DatosConsultaVuelo;
 import com.alura.flight_prediction.dto.DatosRespuestaVuelo;
 import com.alura.flight_prediction.entity.Vuelo;
 import com.alura.flight_prediction.repository.VueloRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class VueloService {
 
-    @Autowired
-    private VueloRepository vueloRepository;
-
+    private final VueloRepository vueloRepository;
     private final MlPredictionMicroServicePy mlClient;
 
-    public VueloService(MlPredictionMicroServicePy mlClient) {
+    public VueloService(VueloRepository vueloRepository, MlPredictionMicroServicePy mlClient) {
+        this.vueloRepository = vueloRepository;
         this.mlClient = mlClient;
     }
 
@@ -49,7 +47,6 @@ public class VueloService {
             return response;
         }
 
-        // Si ya existe, igual devuelves la predicción
         return mlClient.predictChurn2(request);
     }
 }
