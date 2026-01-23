@@ -21,26 +21,26 @@ spring:
         - id: prediccion
           #uri: http://flight-prediction:8090
           #uri: http://localhost:8090
-          uri: lb://msvc-flight-prediction
+          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
           predicates:
             - Path=/prediccion/**
 
         - id: api-routes
-          uri: lb://msvc-flight-prediction
+          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
           predicates:
             - Path=/api/**
 
         - id: FlightStats
-          uri: lb://msvc-flight-prediction
+          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
           predicates:
               - Path=/vuelos/stats/**
 
         - id: auth
-          uri: lb://msvc-flight-prediction
+          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
           predicates:
             - Path=/login/**,/usuarios/**
 
         - id: spring-doc
-          uri: lb://msvc-flight-prediction
+          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
           predicates:
             - Path=/v3/api-docs/**, /swagger-ui/**, /swagger-ui.html
