@@ -38,12 +38,17 @@ En la demo/explicación del desafío se menciona que el modelo fue optimizado, s
   - Día de la semana.
   - Aeropuerto origen/destino.
   - Aerolínea.
-  - Distancia (km). 
+  - Distancia (km).
+ 
+    
 - **Modelado**:
   - Clasificación binaria: 0 = Puntual, 1 = Retrasado. 
-  - Modelos sugeridos: LogisticRegression o RandomForestClassifier. 
+  - Modelos sugeridos: LogisticRegression o RandomForestClassifier.
+ 
+  - 
 - **Evaluación**:
-  - Métricas: Accuracy, Precision, Recall, F1-score. 
+  - Métricas: Accuracy, Precision, Recall, F1-score.
+  - 
 - **Serialización**:
   - Exportación de modelo con `joblib`/`pickle` (para carga posterior o despliegue). 
 
@@ -64,34 +69,43 @@ Json
   "prevision": "Puntual",
   "probabilidad": 0.22
 }
-Back-End — qué se ha hecho / funcionalidades actuales [file:1][file:2]
+
+```
+Back-End — qué se ha hecho / funcionalidades actuales 
 El backend es una API REST en Java/Spring Boot orientada a exponer predicciones y estadísticas, con validación de entradas usando DTOs y respuestas JSON estandarizadas. 
 Según el documento, el MVP actual incluye un endpoint de predicción por número de vuelo y un endpoint de estadísticas agregadas por aerolínea. 
 Endpoints principales (MVP)
 •	Predicción: POST /predict/fromFlight/{numeroVuelo} → retorna "prevision" y "probabilidad". 
 •	Estadísticas: GET /vuelos/stats/{aerolinea} → retorna totales agregados (total_vuelos, puntuales, retrasados). 
+
 Ejemplo — Predicción
 POST /predict/fromFlight/{numeroVuelo} 
-Json
+
+```Json
 {
   "prevision": "Retrasado",
   "probabilidad": 0.78
 }
+```
 
 Ejemplo — Estadísticas
 GET /vuelos/stats/{aerolinea}
-Json
+
+```Json
 {
   "aerolinea": "AZ",
   "total_vuelos": 120,
   "puntuales": 95,
   "retrasados": 25
 }
+
+```
+
 Servicios de clima
 El documento menciona endpoints de clima y DTOs asociados: /forecast (pronóstico) y /weather (clima actual). 
 DTOs mencionados: WeatherMLDTO(double temp_mean, double precipitation, double wind_speed) y WeatherDTO(double temperature, double precipitation, double windSpeed, boolean forecast).
 
-Requisitos técnicos [file:2]
+Requisitos técnicos 
 •	Java 17+ 
 •	Maven 3+
 •	Spring Boot 3+ 
@@ -101,37 +115,51 @@ Requisitos técnicos [file:2]
 
 Configuración inicial (local) 
 Base de datos 
+
 Crear la base de datos:
-Sql
+
+```Sql
 CREATE DATABASE flight_prediction;
+```
+
 Ajustar credenciales/URL de conexión MySQL en la configuración del proyecto. 
 API Keys externas 
+
 •	AirLabs: registrarse y reemplazar la API Key en AirLabService. 
 •	OpenWeatherMap: registrarse y reemplazar la API Key en WeatherService. 
+
 Ejemplo (según documento):
-Java
+
+```Java
 @Value("API_KEY")
 private String apiKey;
+```
 
 Ejecución local (microservicios) 
 Clonar el repositorio:
+
 git clone https://github.com/JaimeValleZ/FlightOnTime.git
 cd FlightOnTime
+
 Levantar servicios (en terminales separadas): 
 1.	Config Server
-Bash
+```Bash
 cd config-server
 mvn spring-boot:run
+```
 
 2.	Eureka
-Bash
+```Bash
 cd ../eureka
 mvn spring-boot:run
+```
 
 3.	Flight Prediction
-Bash
+```Bash
 cd ../flight-prediction
 mvn spring-boot:run
+```
+
 
 Pruebas automatizadas (rama test-automatizados)
 Esta rama está orientada a incorporar/expandir pruebas automatizadas del backend (unitarias e integración), alineado con la funcionalidad “Pruebas automatizadas” considerada en el alcance del proyecto. 
