@@ -21,10 +21,35 @@ public class VueloService {
     }
 
     public DatosRespuestaVuelo obtenerPrediccion2(DatosConsultaVuelo request) {
-        var response = mlClient.predictChurn2(request);
-        var vuelo = new Vuelo(null, request.aerolinea(), request.origen(), request.destino(),
-                request.fechaPartida(), request.distancia(), response.prevision(), response.probabilidad());
-        vueloRepository.save(vuelo);
+
+        boolean existe = vueloRepository
+                .existsByAerolineaAndOrigenAndDestinoAndFechaPartidaAndDistancia(
+                        request.aerolinea(),
+                        request.origen(),
+                        request.destino(),
+                        request.fechaPartida(),
+                        request.distancia()
+                );
+
+        if (!existe) {
+            var response = mlClient.predictChurn2(request);
+
+            var vuelo = new Vuelo(
+                    null,
+                    request.aerolinea(),
+                    request.origen(),
+                    request.destino(),
+                    request.fechaPartida(),
+                    request.distancia(),
+                    response.prevision(),
+                    response.probabilidad()
+            );
+
+            vueloRepository.save(vuelo);
+            return response;
+        }
+
+        // Si ya existe, igual devuelves la predicción
         return mlClient.predictChurn2(request);
     }
 }

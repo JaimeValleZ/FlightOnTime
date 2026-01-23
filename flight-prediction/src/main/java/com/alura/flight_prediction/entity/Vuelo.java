@@ -9,7 +9,21 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity(name = "Vuelo")
-@Table(name = "Vuelos")
+@Table(
+        name = "Vuelos",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_vuelo_unico",
+                        columnNames = {
+                                "aerolinea",
+                                "origen",
+                                "destino",
+                                "fechaPartida",
+                                "distancia"
+                        }
+                )
+        }
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

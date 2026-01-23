@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -17,31 +18,16 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// Si tu Spring Boot es 3.4+, cambia MockBean por MockitoBean (import exacto depende de tu versión)
-// import org.springframework.boot.test.mock.mockito.MockitoBean;
-
-@WebMvcTest(VueloController.class)
-class WeatherControllerTest {
+@WebMvcTest(VueloController.class)  // Prueba el controlador principal
+class WeatherControllerTest {  // Mantiene nombre original
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
 
-    // Reemplazar por @MockitoBean si aplica en tu versión
-    // @MockitoBean
-    // private VueloService vueloService;
-    //
-    // @MockitoBean
-    // private ConsultaVueloService consultaVueloService;
-
-    // Si todavía no migras, deja @MockBean (pero saldrá warning):
-    @org.springframework.boot.test.mock.mockito.MockBean
-    private VueloService vueloService;
-
-    @org.springframework.boot.test.mock.mockito.MockBean
-    private ConsultaVueloService consultaVueloService;
+    @MockBean private VueloService vueloService;
+    @MockBean private ConsultaVueloService consultaVueloService;
 
     @Test
     @DisplayName("GET /prediccion/test → 'Test OK' 200")
@@ -54,6 +40,7 @@ class WeatherControllerTest {
     @Test
     @DisplayName("POST /prediccion/predict-from-flight/LA123 → 200 predicción OK")
     void predictFromFlightOk() throws Exception {
+        // Arrange: mocks de servicios
         DatosConsultaVuelo datosMock = new DatosConsultaVuelo(
                 "LATAM", "MAD", "SCL",
                 LocalDateTime.now().plusDays(2),
@@ -65,7 +52,8 @@ class WeatherControllerTest {
         when(vueloService.obtenerPrediccion2(any()))
                 .thenReturn(new DatosRespuestaVuelo("En hora", 0.15));
 
-        mockMvc.perform(post("/prediccion/predict-from-flight/LA123")
+        // Act & Assert
+        mockMvc.perform(get("/prediccion/predict-from-flight/LA123")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.prevision").value("En hora"))
@@ -73,12 +61,15 @@ class WeatherControllerTest {
     }
 
     @Test
-    @DisplayName("POST /predict-from-flight vuelo inválido → 5xx/4xx según handler")
+    @DisplayName("POST /predict-from-flight vuelo inválido → 400/500")
     void predictFromFlightInvalido() throws Exception {
+        // Arrange: simular error en servicio
         when(consultaVueloService.construirConsultaVuelo("ZZ999"))
                 .thenThrow(new IllegalArgumentException("Vuelo no encontrado"));
 
-        mockMvc.perform(post("/prediccion/predict-from-flight/ZZ999"))
-                .andExpect(status().is5xxServerError());
+        // Act & Assert
+        mockMvc.perform(get("/prediccion/predict-from-flight/ZZ999"))
+                .andExpect(status().isBadGateway())  // O is5xxServerError()
+                .andExpect(jsonPath("$.error").exists());
     }
 }

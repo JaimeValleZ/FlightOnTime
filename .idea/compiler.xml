@@ -8,12 +8,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-<<<<<<< HEAD
-        <module name="flight-prediction" />
-        <module name="eureka" />
-        <module name="gateway" />
-      </profile>
-=======
         <module name="eureka" />
         <module name="gateway" />
       </profile>
@@ -26,7 +20,6 @@
         </processorPath>
         <module name="flight-prediction" />
       </profile>
->>>>>>> pruebas-alison
     </annotationProcessing>
   </component>
   <component name="JavacSettings">

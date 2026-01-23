@@ -3,37 +3,44 @@ eureka:
     register-with-eureka: false
 
 server:
-  port: 8080
+  #port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
     name: msvc-gateway
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
       routes:
 
         - id: prediccion
           #uri: http://flight-prediction:8090
-          uri: http://localhost:8090
+          #uri: http://localhost:8090
+          uri: lb://msvc-flight-prediction
           predicates:
             - Path=/prediccion/**
 
         - id: api-routes
-          uri: http://localhost:8090
+          uri: lb://msvc-flight-prediction
           predicates:
             - Path=/api/**
 
         - id: FlightStats
-          uri: http://localhost:8090
+          uri: lb://msvc-flight-prediction
           predicates:
               - Path=/vuelos/stats/**
 
         - id: auth
-          uri: http://localhost:8090
+          uri: lb://msvc-flight-prediction
           predicates:
             - Path=/login/**,/usuarios/**
 
         - id: spring-doc
-          uri: http://localhost:8090
+          uri: lb://msvc-flight-prediction
           predicates:
             - Path=/v3/api-docs/**, /swagger-ui/**, /swagger-ui.html

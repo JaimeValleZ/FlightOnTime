@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+
 public interface VueloRepository extends JpaRepository<Vuelo, Long> {
     //Total de vuelos
     @Query("""
@@ -25,6 +27,14 @@ public interface VueloRepository extends JpaRepository<Vuelo, Long> {
     long countByAeorlineaAndPrevision(
             @Param("aerolinea") String aerolinea,
             @Param("prevision") String prevision
+    );
+
+    boolean existsByAerolineaAndOrigenAndDestinoAndFechaPartidaAndDistancia(
+            String aerolinea,
+            String origen,
+            String destino,
+            LocalDateTime fechaPartida,
+            Integer distancia
     );
 }
 

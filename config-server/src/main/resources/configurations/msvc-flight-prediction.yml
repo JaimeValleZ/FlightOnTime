@@ -1,15 +1,18 @@
 server:
-  port: 8090
+  #port: 8090
+  port: ${SERVER_PORT:8090}
 
 spring:
   application:
     name: msvc-flight-prediction
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: jdbc:mysql://mysql:3306/flight_prediction
-    url: jdbc:mysql://localhost:3306/flight_prediction
-    username: root
-    password: 80032671j
+    #url: jdbc:mysql://mysql:3306/flight_prediction docker
+    #url: jdbc:mysql://localhost:3306/flight_prediction local
+    #url: jdbc:mysql://mysql-gofly-gofly-72.b.aivencloud.com:15750/defaultdb?sslMode=REQUIRED #Koyeb con Aiven MySQL
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,11 +21,13 @@ spring:
 eureka:
   instance:
     #hostname: flight-prediction
-    hostname: localhost
+    #hostname: localhost
+    hostname: ${HOSTNAME}
   client:
     service-url:
       #defaultZone: http://eureka:8761/eureka/
-      defaultZone: http://localhost:8761/eureka/
+      #defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL}
 
 
 feign:
