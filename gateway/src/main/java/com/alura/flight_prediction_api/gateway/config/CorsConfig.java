@@ -13,7 +13,7 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOrigin("*");
+        config.addAllowedOrigin("https://flightontime-frontend.onrender.com");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
