@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "microservice-py",
-        url= "https://controversial-marigold-cunn-caca67d7.koyeb.app/"
-        //url = "http://127.0.0.1:8000/" //Cambiar URL real a una variable de entorno o en el .yml
-        //url = "http://flight-ml:8000/" //Cambiar URL real a una variable de entorno o en el .yml
+        url= "http://flight-ml:8000/"
 )
 public interface MlPredictionMicroServicePy {
 

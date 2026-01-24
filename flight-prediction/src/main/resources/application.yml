@@ -2,6 +2,5 @@ spring:
   application:
     name: msvc-flight-prediction
   config:
-    #import: optional:configserver:http://config-server:8888
-    #import: optional:configserver:http://localhost:8888
-    import: optional:configserver:${CONFIG_SERVER_URL}
+    import: optional:configserver:http://config-server:8888
+

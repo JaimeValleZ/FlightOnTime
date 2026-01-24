@@ -3,44 +3,36 @@ eureka:
     register-with-eureka: false
 
 server:
-  #port: 8080
-  port: ${PORT:8080}
+  port: 8080
 
 spring:
   application:
     name: msvc-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-
       routes:
 
         - id: prediccion
-          #uri: http://flight-prediction:8090
-          #uri: http://localhost:8090
-          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
+          uri: http://flight-prediction:8090
           predicates:
             - Path=/prediccion/**
 
         - id: api-routes
-          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
+          uri: http://flight-prediction:8090
           predicates:
             - Path=/api/**
 
         - id: FlightStats
-          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
+          uri: http://flight-prediction:8090
           predicates:
-              - Path=/vuelos/stats/**
+            - Path=/vuelos/stats/**
 
         - id: auth
-          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
+          uri: http://flight-prediction:8090
           predicates:
             - Path=/login/**,/usuarios/**
 
         - id: spring-doc
-          uri: https://scattered-ronny-gofly-flight-48fa32b2.koyeb.app/
+          uri: http://flight-prediction:8090
           predicates:
             - Path=/v3/api-docs/**, /swagger-ui/**, /swagger-ui.html
