@@ -18,7 +18,7 @@ public class WeatherService {
 
     private final OpenWeatherClient weatherClient;
 
-    @Value("3aa4a7e2a01232dd9e5bcdb0c3877afe")
+    @Value("${WEATHER_API_KEY}")
     private String apiKey;
 
     public WeatherService(OpenWeatherClient weatherClient) {
