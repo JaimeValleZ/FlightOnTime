@@ -1,9 +1,9 @@
 package com.alura.flight_prediction.service;
 
 import com.alura.flight_prediction.dto.DatosConsultaVuelo;
-import com.alura.flight_prediction.service.AirLabsService;
-import com.alura.flight_prediction.service.WeatherService;
-import org.junit.jupiter.api.BeforeEach;
+import com.alura.flight_prediction.dto.airport.AirportDTO;
+import com.alura.flight_prediction.dto.flight.FlightDetailDTO;
+import com.alura.flight_prediction.dto.weather.WeatherMLDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,89 +12,119 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Tests para ConsultaVueloService - Orquesta datos para ML
- * Valida: construirConsultaVuelo(flightIata) → integra AirLabs + Weather
- */
 @ExtendWith(MockitoExtension.class)
 class ConsultaVueloServiceTest {
-/*
-    @Mock private AirLabsService airLabsService;
-    @Mock private WeatherService weatherService;
 
-    @InjectMocks private ConsultaVueloService consultaVueloService;
+    @Mock
+    private AirLabsService airLabsService;
+
+    @Mock
+    private WeatherService weatherService;
+
+    @InjectMocks
+    private ConsultaVueloService consultaVueloService;
 
     @Test
-    @DisplayName("construirConsultaVuelo('LA123') → DatosConsultaVuelo completo")
+    @DisplayName("construirConsultaVuelo → construye DatosConsultaVuelo correctamente")
     void construirConsultaVueloExitosa() {
-        // Arrange: mocks de servicios externos
+
+        FlightDetailDTO vuelo = new FlightDetailDTO(
+                "LATAM",
+                "LA",
+                "LA123",
+                "Santiago",
+                "SCL",
+                "Chile",
+                "Santiago",
+                "Madrid",
+                "MAD",
+                "España",
+                "Madrid",
+                "2026-01-25 10:00",
+                "2026-01-26 05:00",
+                780,
+                null
+        );
+
+        AirportDTO origen = new AirportDTO(
+                "SCL",
+                -33.3929,
+                -70.7858,
+                "CL",
+                "Arturo Merino Benítez"
+        );
+
+        AirportDTO destino = new AirportDTO(
+                "MAD",
+                40.4983,
+                -3.5676,
+                "ES",
+                "Barajas"
+        );
+
+        WeatherMLDTO clima = new WeatherMLDTO(
+                18.5,
+                0.0,
+                6.2
+        );
+
         when(airLabsService.getFlightDetail("LA123"))
-                .thenReturn(/* mock FlightDetailDTO con SCL→MAD, 10700km );
+                .thenReturn(vuelo);
+
+        when(airLabsService.getAirportsByCity("SCL"))
+                .thenReturn(List.of(origen));
+
+        when(airLabsService.getAirportsByCity("MAD"))
+                .thenReturn(List.of(destino));
 
         when(weatherService.obtenerClimaParaVueloML(
-                33.39, -70.79,  // SCL lat/lon
-                -40.49, -74.18, // MAD lat/lon
-                "Santiago", "CL",
-                LocalDateTime.now().plusDays(2)
-        ))
-                .thenReturn(new WeatherMLDTO(20.0, 0.0, 5.0));
+                eq(destino.lat()),
+                eq(destino.lng()),
+                eq("Madrid"),
+                eq("España"),
+                any(LocalDateTime.class)
+        )).thenReturn(clima);
 
-        // Act
-        DatosConsultaVuelo datos = consultaVueloService.construirConsultaVuelo("LA123");
+        DatosConsultaVuelo datos =
+                consultaVueloService.construirConsultaVuelo("LA123");
 
-        // Assert
-        assertThat(datos.aerolinea()).isEqualTo("LATAM");
+        assertThat(datos.aerolinea()).isEqualTo("LA");
         assertThat(datos.origen()).isEqualTo("SCL");
         assertThat(datos.destino()).isEqualTo("MAD");
-        assertThat(datos.distancia()).isEqualTo(10700);
-        assertThat(datos.temp_mean()).isEqualTo(20.0);
+        assertThat(datos.distancia()).isGreaterThan(10_000);
+        assertThat(datos.temp_mean()).isEqualTo(18.5);
         assertThat(datos.precipitation()).isZero();
-        verify(airLabsService, times(1)).getFlightDetail("LA123");
-        verify(weatherService, times(1)).obtenerClimaParaVueloML(anyDouble(), anyDouble(), any(), any(), any());
+        assertThat(datos.wind_speed()).isEqualTo(6.2);
+
+        verify(airLabsService).getFlightDetail("LA123");
+        verify(airLabsService).getAirportsByCity("SCL");
+        verify(airLabsService).getAirportsByCity("MAD");
+        verify(weatherService).obtenerClimaParaVueloML(
+                anyDouble(), anyDouble(), any(), any(), any()
+        );
     }
 
     @Test
-    @DisplayName("construirConsultaVuelo vuelo inexistente → excepción")
-    void construirConsultaVueloInexistente() {
-        // Arrange
+    @DisplayName("vuelo no encontrado → lanza excepción")
+    void vueloNoEncontrado() {
+
         when(airLabsService.getFlightDetail("ZZ999"))
-                .thenThrow(new RuntimeException("Vuelo no encontrado"));
+                .thenReturn(null);
 
-        // Act & Assert
-        assertThatThrownBy(() -> consultaVueloService.construirConsultaVuelo("ZZ999"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("no encontrado");
+        assertThatThrownBy(() ->
+                consultaVueloService.construirConsultaVuelo("ZZ999")
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No se pudo obtener el vuelo");
+
+        verify(airLabsService).getFlightDetail("ZZ999");
+        verifyNoInteractions(weatherService);
     }
-
-    @Test
-    @DisplayName("Vuelo doméstico corto → consulta rápida")
-    void construirConsultaVueloDomestico() {
-        // Arrange: Santiago → Temuco (corto)
-        when(airLabsService.getFlightDetail("LA100"))
-                .thenReturn(/* mock SCL-TCO 680km );
-
-        // Act
-        DatosConsultaVuelo datos = consultaVueloService.construirConsultaVuelo("LA100");
-
-        // Assert
-        assertThat(datos.distancia()).isLessThan(1000);
-        assertThat(datos.origen()).isEqualTo("SCL");
-        assertThat(datos.destino()).isEqualTo("ZCO");
-    }
-
-    @Test
-    @DisplayName("Verifica orden: AirLabs → Weather → DatosConsultaVuelo")
-    void verificaFlujoCompleto() {
-        // Act
-        consultaVueloService.construirConsultaVuelo("LA456");
-
-        // Assert: orden correcto de llamadas
-        verify(airLabsService, times(1)).getFlightDetail("LA456");
-        verify(weatherService, atLeastOnce()).obtenerClimaParaVueloML(anyDouble(), anyDouble(), any(), any(), any());
-    }
-    */
 }
