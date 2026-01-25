@@ -14,7 +14,7 @@ GOFLY busca anticipar ese riesgo usando datos del vuelo (origen/destino, hora, a
 
 ## Arquitectura (visión general) [file:2]
 
-El proyecto se plantea con una arquitectura distribuida basada en microservicios: `config-server`, `eureka`, `flight-prediction` y un `gateway` que actualmente “ya no se usa para acceder a endpoints”. 
+El proyecto se plantea con una arquitectura distribuida basada en microservicios: `config-server`, `eureka`, `flight-prediction` y un `gateway` siendo nuestro puerto de entrada de la APP. 
 El microservicio principal es `flight-prediction`, que expone endpoints para predicción y estadísticas agregadas. 
 
 **Microservicios**
