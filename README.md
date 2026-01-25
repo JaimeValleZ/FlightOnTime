@@ -160,6 +160,20 @@ cd ../flight-prediction
 mvn spring-boot:run
 ```
 
+**Despliegue y entorno de ejecución**
+
+**Entorno de Koyeb: Rama main**
+**Entorno de Docker: Rama docker**
+
+GOFLY está desplegada en un entorno cloud moderno, desacoplado y alineado con la arquitectura de microservicios definida para el proyecto.
+
+Los microservicios backend (config-server, eureka, gateway y flight-prediction) se despliegan en Koyeb, aprovechando su soporte nativo para aplicaciones Java/Spring Boot y su integración con variables de entorno para la gestión segura de configuraciones y API Keys. Esto permite escalar servicios de forma independiente y mantener una infraestructura ligera y flexible.
+
+El front-end de la aplicación se despliega en Render, donde se sirve la interfaz web de GOFLY y se conecta al backend a través del API Gateway expuesto en Koyeb. Esta separación facilita el despliegue continuo y la evolución independiente de la capa visual.
+
+La base de datos MySQL se aloja en Aiven, utilizando un servicio administrado que garantiza alta disponibilidad, backups automáticos y conexiones seguras, evitando la necesidad de gestionar infraestructura de base de datos manualmente.
+
+Para el desarrollo local, GOFLY utiliza Docker, permitiendo levantar los microservicios en contenedores con un entorno controlado y reproducible. Esto asegura consistencia entre los entornos local y productivo, y simplifica tanto las pruebas como la integración entre servicios antes del despliegue en la nube.
 
 Pruebas automatizadas (rama test-automatizados)
 Esta rama está orientada a incorporar/expandir pruebas automatizadas del backend (unitarias e integración), alineado con la funcionalidad “Pruebas automatizadas” considerada en el alcance del proyecto. 
