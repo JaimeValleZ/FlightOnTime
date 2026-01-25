@@ -21,7 +21,7 @@ El microservicio principal es `flight-prediction`, que expone endpoints para pre
 - `config-server`: configuración centralizada. 
 - `eureka`: service discovery. 
 - `flight-prediction`: endpoints de predicción y estadísticas. 
-- `gateway`: componente presente en la arquitectura, pero actualmente no se usa para acceder a los endpoints. 
+- `gateway`: componente presente en la arquitectura, puerto de entrada de la APP
 
 ---
 
