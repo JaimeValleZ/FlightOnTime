@@ -160,9 +160,10 @@ cd ../flight-prediction
 mvn spring-boot:run
 ```
 
-**Despliegue y entorno de ejecución**
+## Despliegue y entorno de ejecución
 
 **Entorno de Koyeb: Rama main**
+
 **Entorno de Docker: Rama docker**
 
 GOFLY está desplegada en un entorno cloud moderno, desacoplado y alineado con la arquitectura de microservicios definida para el proyecto.
